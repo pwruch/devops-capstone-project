@@ -131,12 +131,18 @@ class TestAccountService(TestCase):
         account_list = response.get_json()
         self.assertEqual(len(account_list), 5)
 
-    def test_get_account(self):
-        """It should Read a single Account"""
-        account = self._create_accounts(1)[0]
-        response = self.client.get(
-            f"{BASE_URL}/{account.id}", content_type="application/json"
+    def test_read_account(self):
+        """It should Read an Account"""
+        account = AccountFactory()      # create an account
+        response = self.client.post(
+            BASE_URL,
+            json=account.serialize(),
+            content_type="application/json"
         )
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        data = response.get_json()
-        self.assertEqual(data["name"], account.name)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        
+        read_response = self.client.get(f"{BASE_URL}/{account.id}")
+        self.assertEqual(read_response.status_code, status.HTTP_200_OK)
+        read_account = read_response.get_json()
+        self.assertEqual(read_account["id"], account.id)
+
